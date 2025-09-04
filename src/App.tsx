@@ -1,10 +1,25 @@
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
+import Layout from "./Layout/Layout";
+import CompareText from "./Pages/CompareText/Comparetext";
 
 function App() {
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Layout />,
+      children: [
+        {
+          path: "/",
+          element: <CompareText />,
+        },
+      ],
+    },
+  ]);
   return (
-    <div>
-      <p className="text-5xl">giorgi</p>
-    </div>
+    <>
+      <RouterProvider router={router} />
+    </>
   );
 }
 
