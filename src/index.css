@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* @font-face {
+  font-family: "Helvetica";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Helvetica"),
+    url("./assets/Fonts/helvetica-font/Helvetica.woff") format("woff");
+} */
 #root {
   max-width: 1440px;
   width: 100%;
@@ -8,4 +15,17 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+body {
+  font-family: "Helvetica", sans-serif;
+}
+
+@theme {
+  --color-white: #ffffff;
+  --color-dark-Blue: #132450;
+  --color-blue: #4571e4;
+  --color-arsenic: #383a48;
+  --color-light-blue: #f0f7ff;
+  --color-brown: rgba(56, 58, 72, 0.6);
 }
