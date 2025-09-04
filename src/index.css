@@ -13,8 +13,6 @@
 }
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 body {
@@ -25,6 +23,7 @@ body {
   --color-white: #ffffff;
   --color-dark-Blue: #132450;
   --color-blue: #4571e4;
+  --color-light-blue: #9eb9ff;
   --color-arsenic: #383a48;
   --color-light-blue: #f0f7ff;
   --color-brown: rgba(56, 58, 72, 0.6);
