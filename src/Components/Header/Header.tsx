@@ -44,7 +44,7 @@ function Header() {
                   end={item.path === "/"}
                   className={({ isActive }) =>
                     isActive
-                      ? "active-nav-item bg-white pl-3 text-dark-Blue py-5 rounded-l-[30px] flex items-center gap-[9px] w-full "
+                      ? "active-nav-item bg-white pl-3 text-dark-Blue py-4 rounded-l-[30px] flex items-center gap-[9px] w-full "
                       : "text-white py-5 pl-3 rounded-l-[30px] flex items-center gap-[9px] w-full  hover:bg-blue-800 transition"
                   }
                 >
