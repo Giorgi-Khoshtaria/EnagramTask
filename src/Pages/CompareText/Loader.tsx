@@ -1,4 +1,3 @@
-import React from "react";
 import load from "../../assets/load.png";
 
 interface LoaderProps {
