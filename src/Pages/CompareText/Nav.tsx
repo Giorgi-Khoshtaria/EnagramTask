@@ -1,5 +1,6 @@
 import image from "../../assets/Spelling, Check, Text.png";
-function Filter() {
+
+function Nav() {
   return (
     <div className=" w-full flex items-center gap-1 py-[26px] mb-[25px] border-b border-b-lightGray3 max-sm:text-[12px]">
       <img src={image} alt="Image" className="w-6 h-6 max-sm:w-4 max-sm:h-4" />
@@ -35,4 +36,4 @@ function Filter() {
   );
 }
 
-export default Filter;
+export default Nav;
