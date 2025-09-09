@@ -1,33 +1,48 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useEffect } from "react";
 import plusIcon from "../../assets/plusIcon.svg";
 import arrows from "../../assets/arrows.svg";
-
-type State = {
-  text1: string;
-  text2: string;
-  highlighted1: string;
-  highlighted2: string;
-};
-
-type Action =
-  | { type: "SET_TEXT1"; payload: string }
-  | { type: "SET_TEXT2"; payload: string }
-  | { type: "COMPARE_TEXTS" }
-  | { type: "RESET" };
+import rotateArrow from "../../assets/Arrow, Rotate.png";
+import Loader from "./Loader";
+import type { State } from "../../types/types";
+import type { Action } from "../../types/types";
 
 const initialState: State = {
   text1: "",
   text2: "",
   highlighted1: "",
   highlighted2: "",
+  loading: false,
+  progress: 0,
+  comparisonDone: false,
+  needsRecompare: false,
 };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "SET_TEXT1":
-      return { ...state, text1: action.payload };
+      return {
+        ...state,
+        text1: action.payload,
+        needsRecompare: state.comparisonDone,
+        highlighted1: state.comparisonDone ? "" : state.highlighted1,
+        highlighted2: state.comparisonDone ? "" : state.highlighted2,
+        comparisonDone: state.comparisonDone ? false : state.comparisonDone,
+      };
+
     case "SET_TEXT2":
-      return { ...state, text2: action.payload };
+      return {
+        ...state,
+        text2: action.payload,
+        needsRecompare: state.comparisonDone,
+        highlighted1: state.comparisonDone ? "" : state.highlighted1,
+        highlighted2: state.comparisonDone ? "" : state.highlighted2,
+        comparisonDone: state.comparisonDone ? false : state.comparisonDone,
+      };
+
+    case "START_LOADING":
+      return { ...state, loading: true, progress: 0 };
+    case "SET_PROGRESS":
+      return { ...state, progress: action.payload };
     case "COMPARE_TEXTS": {
       const chars1 = state.text1.split("");
       const chars2 = state.text2.split("");
@@ -53,7 +68,15 @@ const reducer = (state: State, action: Action): State => {
         }
       }
 
-      return { ...state, highlighted1, highlighted2 };
+      return {
+        ...state,
+        highlighted1,
+        highlighted2,
+        loading: false,
+        progress: 100,
+        comparisonDone: true,
+        needsRecompare: false,
+      };
     }
     case "RESET":
       return initialState;
@@ -64,6 +87,29 @@ const reducer = (state: State, action: Action): State => {
 
 export default function CompareText() {
   const [state, dispatch] = useReducer(reducer, initialState);
+  useEffect(() => {
+    let interval: number | undefined;
+    if (state.loading) {
+      let progress = 0;
+      interval = window.setInterval(() => {
+        progress += 10;
+        if (progress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            dispatch({ type: "COMPARE_TEXTS" });
+          }, 300);
+        } else {
+          dispatch({ type: "SET_PROGRESS", payload: progress });
+        }
+      }, 150);
+    }
+    return () => clearInterval(interval);
+  }, [state.loading]);
+
+  const handleCompare = () => {
+    if (!state.text1.trim() || !state.text2.trim()) return;
+    dispatch({ type: "START_LOADING" });
+  };
 
   return (
     <div className="w-full min-h-screen flex flex-col items-start bg-white">
@@ -103,58 +149,78 @@ export default function CompareText() {
         </div>
       </div>
 
-      <div className="p-6 flex flex-col items-center w-full gap-8">
-        <div className="flex items-center justify-between gap-4 w-full">
-          <div className="relative w-full">
-            <div
-              className="absolute inset-0 p-3 text-lg leading-6 text-gray-700 whitespace-pre-wrap break-words pointer-events-none"
-              dangerouslySetInnerHTML={{
-                __html: state.highlighted1 || state.text1,
-              }}
-            />
-            <textarea
-              value={state.text1}
-              onChange={(e) =>
-                dispatch({ type: "SET_TEXT1", payload: e.target.value })
-              }
-              className="p-3 bg-transparent border border-gray-300 w-full h-[432px] rounded-lg resize-none text-lg leading-6 text-transparent caret-black focus:outline-none"
-              placeholder="დაიწყე წერა..."
-            />
-          </div>
-
-          <img src={arrows} alt="arrows" className="mx-2" />
-
-          <div className="relative w-full">
-            <div
-              className="absolute inset-0 p-3 text-lg leading-6 text-gray-700 whitespace-pre-wrap break-words pointer-events-none"
-              dangerouslySetInnerHTML={{
-                __html: state.highlighted2 || state.text2,
-              }}
-            />
-            <textarea
-              value={state.text2}
-              onChange={(e) =>
-                dispatch({ type: "SET_TEXT2", payload: e.target.value })
-              }
-              className="p-3 bg-transparent border border-gray-300 w-full h-[432px] rounded-lg resize-none text-lg leading-6 text-transparent caret-black focus:outline-none"
-              placeholder="დაიწყე წერა..."
-            />
-          </div>
+      {state.loading ? (
+        <div className="flex items-center justify-center w-full mt-[216px]">
+          <Loader progress={state.progress} />
         </div>
+      ) : (
+        <div className="p-6 flex flex-col items-center w-full gap-8 transition-opacity duration-300">
+          <div className="flex items-center justify-between gap-4 w-full">
+            <div className="relative w-full">
+              {state.comparisonDone && (
+                <div
+                  className="absolute inset-0 p-3 text-lg leading-6 text-gray-700 whitespace-pre-wrap break-words pointer-events-none"
+                  dangerouslySetInnerHTML={{
+                    __html: state.highlighted1,
+                  }}
+                />
+              )}
+              <textarea
+                value={state.text1}
+                onChange={(e) =>
+                  dispatch({ type: "SET_TEXT1", payload: e.target.value })
+                }
+                className={`p-3 bg-transparent border border-gray-300 w-full h-[432px] rounded-lg resize-none text-lg leading-6 caret-black focus:outline-none ${
+                  state.comparisonDone ? "text-transparent" : "text-gray-700"
+                }`}
+                placeholder="დაიწყე წერა..."
+              />
+            </div>
 
-        <button
-          onClick={() => dispatch({ type: "COMPARE_TEXTS" })}
-          disabled={!state.text1.trim() || !state.text2.trim()}
-          className={`py-[10px] px-6 rounded-lg text-lg transition
-    ${
-      state.text1.trim() && state.text2.trim()
-        ? "bg-blue-600 text-white hover:bg-blue-500"
-        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-    }`}
-        >
-          შედარება
-        </button>
-      </div>
+            <img src={arrows} alt="arrows" className="mx-2" />
+
+            <div className="relative w-full">
+              {state.comparisonDone && (
+                <div
+                  className="absolute inset-0 p-3 text-lg leading-6 text-gray-700 whitespace-pre-wrap break-words pointer-events-none"
+                  dangerouslySetInnerHTML={{
+                    __html: state.highlighted2,
+                  }}
+                />
+              )}
+              <textarea
+                value={state.text2}
+                onChange={(e) =>
+                  dispatch({ type: "SET_TEXT2", payload: e.target.value })
+                }
+                className={`p-3 bg-transparent border border-gray-300 w-full h-[432px] rounded-lg resize-none text-lg leading-6 caret-black focus:outline-none ${
+                  state.comparisonDone ? "text-transparent" : "text-gray-700"
+                }`}
+                placeholder="დაიწყე წერა..."
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={handleCompare}
+            disabled={!state.text1.trim() || !state.text2.trim()}
+            className={`py-[10px] px-6 rounded-lg text-lg transition flex items-center justify-center gap-2 ${
+              state.text1.trim() && state.text2.trim()
+                ? "bg-blue-600 text-white hover:bg-blue-500"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            {state.needsRecompare ? (
+              <div className="flex items-center gap-1">
+                <img src={rotateArrow} alt="recompare" className="w-5 h-5" />
+                <p className="text-white leading-7 "> შედარება</p>
+              </div>
+            ) : (
+              "შედარება"
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
