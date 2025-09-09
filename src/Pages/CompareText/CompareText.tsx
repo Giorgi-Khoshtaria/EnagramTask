@@ -5,7 +5,7 @@ import rotateArrow from "../../assets/Arrow, Rotate.png";
 import Loader from "./Loader";
 import type { State } from "../../types/types";
 import type { Action } from "../../types/types";
-import Filter from "./filter";
+import Nav from "./Nav";
 
 const initialState: State = {
   text1: "",
@@ -116,7 +116,7 @@ export default function CompareText() {
     <div className="w-full min-h-screen flex flex-col items-start bg-white">
       <div className="px-6 pt-6 w-full">
         <div className="hidden w-full max-md:flex">
-          <Filter />
+          <Nav />
         </div>
         <div className="pb-4 border-b border-lightGray flex flex-wrap  gap-4 items-center justify-between max-[420px]:flex-col max-[420px]:items-start">
           <div className="flex items-center gap-6 max-[420px]:flex-col max-[420px]:w-full">
