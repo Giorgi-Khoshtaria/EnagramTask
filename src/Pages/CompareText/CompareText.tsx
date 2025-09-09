@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from "react";
+import { useReducer, useEffect } from "react";
 import plusIcon from "../../assets/plusIcon.svg";
 import arrows from "../../assets/arrows.svg";
 import rotateArrow from "../../assets/Arrow, Rotate.png";
