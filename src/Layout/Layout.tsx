@@ -4,7 +4,7 @@ import Header from "../Components/Header/Header";
 
 function Layout() {
   return (
-    <div className="flex items-center justify-between  ">
+    <div className="flex items-center justify-between max-md:flex-col  ">
       <Header />
       <Outlet />
     </div>

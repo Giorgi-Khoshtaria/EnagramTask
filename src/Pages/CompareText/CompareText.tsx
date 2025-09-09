@@ -5,6 +5,7 @@ import rotateArrow from "../../assets/Arrow, Rotate.png";
 import Loader from "./Loader";
 import type { State } from "../../types/types";
 import type { Action } from "../../types/types";
+import Filter from "./filter";
 
 const initialState: State = {
   text1: "",
@@ -114,21 +115,24 @@ export default function CompareText() {
   return (
     <div className="w-full min-h-screen flex flex-col items-start bg-white">
       <div className="px-6 pt-6 w-full">
-        <div className="pb-4 border-b border-gray-300 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+        <div className="hidden w-full max-md:flex">
+          <Filter />
+        </div>
+        <div className="pb-4 border-b border-lightGray flex flex-wrap  gap-4 items-center justify-between max-[420px]:flex-col max-[420px]:items-start">
+          <div className="flex items-center gap-6 max-[420px]:flex-col max-[420px]:w-full">
             <select
               defaultValue="ka"
-              className="border border-gray-300 rounded-lg leading-[22px] text-gray-700 px-3 py-2"
+              className="border border-lightGray rounded-lg leading-[22px] w-[135px] text-arsenic px-3 py-2 max-[420px]:w-full"
             >
               <option value="ka">ქართული</option>
               <option value="en">English</option>
             </select>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2  max-[420px]:w-full">
               <input
                 type="checkbox"
                 id="preserveFormat"
-                className="w-5 h-5 border border-gray-400 rounded-sm accent-blue-500"
+                className="w-5 h-5 border  border-gray-400 rounded-sm accent-blue-500"
               />
               <label
                 htmlFor="preserveFormat"
@@ -141,7 +145,7 @@ export default function CompareText() {
 
           <button
             onClick={() => dispatch({ type: "RESET" })}
-            className="bg-brown flex gap-2 items-center py-[10px] px-4 rounded-lg text-white leading-7 hover:bg-brown/80 transition"
+            className="bg-brown flex gap-2 items-center justify-center py-[10px] px-4 rounded-lg text-white leading-7 hover:bg-brown/80 transition max-[420px]:w-full"
           >
             <img src={plusIcon} alt="plusIcon" />
             ახლის გახსნა
@@ -154,8 +158,8 @@ export default function CompareText() {
           <Loader progress={state.progress} />
         </div>
       ) : (
-        <div className="p-6 flex flex-col items-center w-full gap-8 transition-opacity duration-300">
-          <div className="flex items-center justify-between gap-4 w-full">
+        <div className="p-6 flex flex-col items-center w-full gap-8 transition-opacity duration-300 max-md:p-7">
+          <div className="flex items-center justify-between gap-4 w-full max-sm:flex-col ">
             <div className="relative w-full">
               {state.comparisonDone && (
                 <div
@@ -170,14 +174,14 @@ export default function CompareText() {
                 onChange={(e) =>
                   dispatch({ type: "SET_TEXT1", payload: e.target.value })
                 }
-                className={`p-3 bg-transparent border border-gray-300 w-full h-[432px] rounded-lg resize-none text-lg leading-6 caret-black focus:outline-none ${
+                className={`p-3 bg-light-blue  w-full h-[432px] max-sm:h-[190px] rounded-lg resize-none text-lg leading-6 caret-black focus:outline-none ${
                   state.comparisonDone ? "text-transparent" : "text-gray-700"
                 }`}
                 placeholder="დაიწყე წერა..."
               />
             </div>
 
-            <img src={arrows} alt="arrows" className="mx-2" />
+            <img src={arrows} alt="arrows" className="mx-2 max-sm:rotate-90" />
 
             <div className="relative w-full">
               {state.comparisonDone && (
@@ -193,7 +197,7 @@ export default function CompareText() {
                 onChange={(e) =>
                   dispatch({ type: "SET_TEXT2", payload: e.target.value })
                 }
-                className={`p-3 bg-transparent border border-gray-300 w-full h-[432px] rounded-lg resize-none text-lg leading-6 caret-black focus:outline-none ${
+                className={`p-3 bg-light-blue  w-full h-[432px] max-sm:h-[190px] rounded-lg resize-none text-lg leading-6 caret-black focus:outline-none ${
                   state.comparisonDone ? "text-transparent" : "text-gray-700"
                 }`}
                 placeholder="დაიწყე წერა..."

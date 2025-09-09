@@ -10,6 +10,7 @@ import pdf from "../../assets/programming-code-document.png";
 import userIcon from "../../assets/User Images.png";
 import dots from "../../assets/dots.svg";
 import leftArrow from "../../assets/chevrons-left.svg";
+import manu from "../../assets/menu.svg";
 import "./header.css";
 
 function Header() {
@@ -22,17 +23,20 @@ function Header() {
   ];
 
   return (
-    <header className="bg-dark-Blue w-[240px] min-h-screen flex flex-col relative">
-      <div className="absolute top-3 right-[27px]">
+    <header className="bg-dark-Blue w-[240px] min-h-screen flex flex-col relative max-md:min-h-[60px] max-md:w-full">
+      <div className="absolute top-3 right-[27px] max-md:hidden">
         <img src={leftArrow} alt="left arrow" />
       </div>
-      <div className="pt-11  flex-grow">
-        <NavLink to="/" className="flex items-center gap-[11px] pl-6">
+      <div className="pt-11  flex-grow max-md:py-3 max-md:flex max-md:items-center max-md:justify-between max-md:w-full">
+        <NavLink
+          to="/"
+          className="flex items-center gap-[11px] pl-6 max-md:pl-[30px]"
+        >
           <img src={logo} alt="logo" />
           <img src={enagram} alt="enagram" />
         </NavLink>
 
-        <nav className="mt-[51px] pl-5">
+        <nav className="mt-[51px] pl-5 max-md:hidden">
           <ul>
             {navigation.map((item, index) => (
               <li
@@ -55,9 +59,12 @@ function Header() {
             ))}
           </ul>
         </nav>
+        <div className="hidden max-md:flex max-md:pr-[30px]">
+          <img src={manu} alt="Manu Icon" />
+        </div>
       </div>
 
-      <div className="border-t border-t-light-blue flex items-center justify-between pl-3.5 pr-3 py-5 mt-auto">
+      <div className="border-t border-t-light-blue flex items-center justify-between pl-3.5 pr-3 py-5 mt-auto max-md:hidden">
         <div className="flex items-center gap-2">
           <img src={userIcon} alt="user icon" />
           <p className="text-sm leading-5 text-white">თამარ ონიანი</p>
