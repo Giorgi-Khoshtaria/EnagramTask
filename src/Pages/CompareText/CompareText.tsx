@@ -16,6 +16,8 @@ const initialState: State = {
   progress: 0,
   comparisonDone: false,
   needsRecompare: false,
+  lastComparedText1: "",
+  lastComparedText2: "",
 };
 
 const reducer = (state: State, action: Action): State => {
@@ -24,7 +26,8 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         text1: action.payload,
-        needsRecompare: state.comparisonDone,
+        needsRecompare:
+          state.comparisonDone && action.payload !== state.lastComparedText1,
         highlighted1: state.comparisonDone ? "" : state.highlighted1,
         highlighted2: state.comparisonDone ? "" : state.highlighted2,
         comparisonDone: state.comparisonDone ? false : state.comparisonDone,
@@ -34,7 +37,8 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         text2: action.payload,
-        needsRecompare: state.comparisonDone,
+        needsRecompare:
+          state.comparisonDone && action.payload !== state.lastComparedText2,
         highlighted1: state.comparisonDone ? "" : state.highlighted1,
         highlighted2: state.comparisonDone ? "" : state.highlighted2,
         comparisonDone: state.comparisonDone ? false : state.comparisonDone,
@@ -44,43 +48,105 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, loading: true, progress: 0 };
     case "SET_PROGRESS":
       return { ...state, progress: action.payload };
+
     case "COMPARE_TEXTS": {
-      const chars1 = state.text1.split("");
-      const chars2 = state.text2.split("");
-      let highlighted1 = "";
-      let highlighted2 = "";
+      const words1 = state.text1.split(/(\s+)/);
+      const words2 = state.text2.split(/(\s+)/);
 
-      const maxLength = Math.max(chars1.length, chars2.length);
+      const highlightWord = (w1: string, w2: string) => {
+        const lcsMatrix: number[][] = Array(w1.length + 1)
+          .fill(null)
+          .map(() => Array(w2.length + 1).fill(0));
 
-      for (let i = 0; i < maxLength; i++) {
-        const c1 = chars1[i] || "";
-        const c2 = chars2[i] || "";
-
-        if (c1 === c2) {
-          highlighted1 += `<span>${c1}</span>`;
-          highlighted2 += `<span>${c2}</span>`;
-        } else if (c1 && !c2) {
-          highlighted1 += `<span class="bg-red-200 text-red-600 font-semibold">${c1}</span>`;
-        } else if (!c1 && c2) {
-          highlighted2 += `<span class="bg-green-200 text-green-600 font-semibold">${c2}</span>`;
-        } else {
-          highlighted1 += `<span class="bg-red-200 text-red-600 font-semibold">${c1}</span>`;
-          highlighted2 += `<span class="bg-green-200 text-green-600 font-semibold">${c2}</span>`;
+        for (let i = 1; i <= w1.length; i++) {
+          for (let j = 1; j <= w2.length; j++) {
+            if (w1[i - 1] === w2[j - 1]) {
+              lcsMatrix[i][j] = lcsMatrix[i - 1][j - 1] + 1;
+            } else {
+              lcsMatrix[i][j] = Math.max(
+                lcsMatrix[i - 1][j],
+                lcsMatrix[i][j - 1]
+              );
+            }
+          }
         }
+
+        let i = w1.length,
+          j = w2.length;
+        let res1 = "",
+          res2 = "";
+
+        while (i > 0 || j > 0) {
+          if (i > 0 && j > 0 && w1[i - 1] === w2[j - 1]) {
+            res1 = w1[i - 1] + res1;
+            res2 = w2[j - 1] + res2;
+            i--;
+            j--;
+          } else if (
+            j > 0 &&
+            (i === 0 || lcsMatrix[i][j - 1] >= lcsMatrix[i - 1][j])
+          ) {
+            res1 =
+              `<span class="bg-green-200 text-green-600 font-semibold"></span>` +
+              res1;
+            res2 =
+              `<span class="bg-green-200 text-green-600 font-semibold">${
+                w2[j - 1]
+              }</span>` + res2;
+            j--;
+          } else if (
+            i > 0 &&
+            (j === 0 || lcsMatrix[i][j - 1] < lcsMatrix[i - 1][j])
+          ) {
+            res1 =
+              `<span class="bg-red-200 text-red-600 font-semibold">${
+                w1[i - 1]
+              }</span>` + res1;
+            res2 =
+              `<span class="bg-red-200 text-red-600 font-semibold"></span>` +
+              res2;
+            i--;
+          }
+        }
+
+        return [res1, res2];
+      };
+
+      let highlightedText1 = "";
+      let highlightedText2 = "";
+      const maxLength = Math.max(words1.length, words2.length);
+
+      for (let k = 0; k < maxLength; k++) {
+        const word1 = words1[k] || "";
+        const word2 = words2[k] || "";
+
+        if (/^\s+$/.test(word1) && /^\s+$/.test(word2)) {
+          highlightedText1 += word1;
+          highlightedText2 += word2;
+          continue;
+        }
+
+        const [h1, h2] = highlightWord(word1, word2);
+        highlightedText1 += h1;
+        highlightedText2 += h2;
       }
 
       return {
         ...state,
-        highlighted1,
-        highlighted2,
+        highlighted1: highlightedText1,
+        highlighted2: highlightedText2,
         loading: false,
         progress: 100,
         comparisonDone: true,
         needsRecompare: false,
+        lastComparedText1: state.text1,
+        lastComparedText2: state.text2,
       };
     }
+
     case "RESET":
       return initialState;
+
     default:
       return state;
   }
@@ -181,7 +247,13 @@ export default function CompareText() {
               />
             </div>
 
-            <img src={arrows} alt="arrows" className="mx-2 max-sm:rotate-90" />
+            {state.needsRecompare && (
+              <img
+                src={arrows}
+                alt="arrows"
+                className="mx-2 max-sm:rotate-90 animate-pulse"
+              />
+            )}
 
             <div className="relative w-full">
               {state.comparisonDone && (
@@ -217,7 +289,7 @@ export default function CompareText() {
             {state.needsRecompare ? (
               <div className="flex items-center gap-1">
                 <img src={rotateArrow} alt="recompare" className="w-5 h-5" />
-                <p className="text-white leading-7 "> შედარება</p>
+                <p className="text-white leading-7">შედარება</p>
               </div>
             ) : (
               "შედარება"

@@ -7,6 +7,8 @@ export interface State {
   progress: number;
   comparisonDone: boolean;
   needsRecompare: boolean;
+  lastComparedText1: string;
+  lastComparedText2: string;
 }
 
 export type Action =
